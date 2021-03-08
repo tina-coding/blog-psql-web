@@ -1,20 +1,49 @@
 import { Box, Flex, Link, Spacer } from '@chakra-ui/layout';
-import { Avatar, Button, Menu, MenuButton, MenuGroup, MenuItem, MenuList, Skeleton, Text } from '@chakra-ui/react';
-import { useCurrentUserQuery } from '../generated/graphql';
+import {
+  Avatar,
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Skeleton,
+  useToast
+} from '@chakra-ui/react';
 import NextLink from 'next/link';
+import { useRouter } from 'next/router';
 import React from 'react';
+import { useCurrentUserQuery, useLogoutMutation } from '../generated/graphql';
 
 interface IUserNameProps {
   username: string;
 }
 const UserName: React.FC<IUserNameProps> = ({ username }) => {
+  const [, logout] = useLogoutMutation();
+  const toast = useToast();
+  const router = useRouter();
+
+  const logoutCurrentUser = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    const response = await logout();
+    response.data?.logout
+      ? router.push('/login')
+      : toast({
+          position: 'top-right',
+          title: 'Error Logging Out',
+          description: 'There was an issue logging you out.',
+          status: 'error',
+          duration: 9000,
+          isClosable: true
+        });
+  };
   return (
     <Menu>
       <MenuButton as={Button} bg="purple.900">
         <Avatar name={username} bg="rebeccapurple" />
       </MenuButton>
       <MenuList bg="purple.800">
-        <MenuItem>
+        <MenuItem onClick={logoutCurrentUser}>
           Logout
         </MenuItem>
       </MenuList>
