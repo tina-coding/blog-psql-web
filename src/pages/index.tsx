@@ -1,7 +1,9 @@
 import { Box, Text } from '@chakra-ui/react';
+import { withUrqlClient } from 'next-urql';
 
 import Navbar from '../components/Navbar';
 import Wrapper from '../components/Wrapper';
+import { createUrqlClient } from '../utils/createUrqlClient';
 
 const Index = () => (
   <>
@@ -17,4 +19,4 @@ const Index = () => (
   </>
 );
 
-export default Index;
+export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
