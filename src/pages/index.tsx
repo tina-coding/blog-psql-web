@@ -2,21 +2,23 @@ import { Box, Text } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 
 import Navbar from '../components/Navbar';
+import Post from '../components/Post';
 import Wrapper from '../components/Wrapper';
+import { usePostsQuery } from '../generated/graphql';
 import { createUrqlClient } from '../utils/createUrqlClient';
 
-const Index = () => (
-  <>
-    <Navbar />
-    <Wrapper>
-      <Box as="section" bg={"white"} py="12" boxShadow="lg" borderRadius="lg">
-        <Box maxW={{ base: 'xl', md: '7xl' }} mx="auto" px={{ md: '8' }}>
-          <Text fontSize="lg" fontWeight="bold">Username</Text>
-          <Text fontSize="md" fontWeight="normal">created at</Text>
-        </Box>
-      </Box>
-    </Wrapper>
-  </>
-);
+const Index = () => {
+  const [{ data }] = usePostsQuery();
+  return (
+    <>
+      <Navbar />
+      <Wrapper>
+        {data && data.posts.map((post) => (
+          <Post key={post.id} post={post} />
+        ))}
+      </Wrapper>
+    </>
+  );
+};
 
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
