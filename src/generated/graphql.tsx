@@ -106,6 +106,12 @@ export type UpdatePostInput = {
   description: Scalars['String'];
 };
 
+export type UpdatePostInput = {
+  id: Scalars['Float'];
+  title: Scalars['String'];
+  description: Scalars['String'];
+};
+
 export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
