@@ -13,6 +13,8 @@ import Wrapper from '../components/Wrapper';
 import { useRegisterMutation } from '../generated/graphql';
 import { toFormikError } from '../utils/convertError';
 import { useRouter } from 'next/router';
+import { withUrqlClient } from 'next-urql';
+import { createUrqlClient } from '../utils/createUrqlClient';
 interface IRegisterProps { }
 
 const Register: React.FC<IRegisterProps> = ({ }) => {
@@ -51,4 +53,4 @@ const Register: React.FC<IRegisterProps> = ({ }) => {
   );
 };
 
-export default Register;
+export default withUrqlClient(createUrqlClient)(Register);
