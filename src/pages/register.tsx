@@ -3,8 +3,8 @@ import {
   FormLabel,
   Input,
   FormErrorMessage,
-	Button,
-	Box
+  Button,
+  Box
 } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { useMutation } from 'urql';
@@ -15,41 +15,64 @@ import { toFormikError } from '../utils/convertError';
 import { useRouter } from 'next/router';
 import { withUrqlClient } from 'next-urql';
 import { createUrqlClient } from '../utils/createUrqlClient';
-interface IRegisterProps { }
+interface IRegisterProps {}
 
-const Register: React.FC<IRegisterProps> = ({ }) => {
+const Register: React.FC<IRegisterProps> = ({}) => {
   const router = useRouter();
 
-	const [, register] = useRegisterMutation();
+  const [, register] = useRegisterMutation();
 
   return (
-		<Wrapper variant="small">
-    <Formik
-      initialValues={{ username: '', password: '' }}
-      onSubmit={ async (values, { setErrors }) => {
-				const response = await register(values);
+    <Wrapper variant="small">
+      <Formik
+        initialValues={{ username: '', email: '', password: '' }}
+        onSubmit={async (values, { setErrors }) => {
+          const response = await register({options: values});
 
-				// do something if there is an error
-        if (response.data?.register.errors) {
-          setErrors(toFormikError(response.data.register.errors));
-        } else if (response.data?.register.user) {
-          // user successfully registered
-          router.push("/");
-        }
-      }}
-    >
-      {({ isSubmitting }) => (
+          // do something if there is an error
+          if (response.data?.register.errors) {
+            setErrors(toFormikError(response.data.register.errors));
+          } else if (response.data?.register.user) {
+            // user successfully registered
+            router.push('/');
+          }
+        }}
+      >
+        {({ isSubmitting }) => (
           <Form>
-						<InputField name="username" placeholder="Username" label="Username" />
-						<Box marginY={4}>
-						<InputField name="password" placeholder="Password" label="Password" type="password" />
-
-						</Box>
-						<Button type="submit" colorScheme="cyan" isLoading={isSubmitting} loadingText="Submitting">Register</Button>
+            <InputField
+              name="username"
+              placeholder="Username"
+              label="Username"
+            />
+            <Box marginY={4}>
+              <InputField
+                name="email"
+                placeholder="Email"
+                label="Email"
+                type="email"
+              />
+            </Box>
+            <Box marginY={4}>
+              <InputField
+                name="password"
+                placeholder="Password"
+                label="Password"
+                type="password"
+              />
+            </Box>
+            <Button
+              type="submit"
+              colorScheme="cyan"
+              isLoading={isSubmitting}
+              loadingText="Submitting"
+            >
+              Register
+            </Button>
           </Form>
-      )}
-    </Formik>
-			</Wrapper>
+        )}
+      </Formik>
+    </Wrapper>
   );
 };
 
