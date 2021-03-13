@@ -76,12 +76,15 @@ const Navbar: React.FC<INavbarProps> = ({}) => {
   const [{ data, fetching }] = useCurrentUserQuery();
 
   return (
-    <Flex bg="purple.900" color="white" p={6}>
+    <Flex position='sticky' top={0} zIndex={1} bg="purple.900" color="white" p={6}>
       <Box>Navigation</Box>
       <Spacer />
       <Box>
         <NextLink href="/">
           <Link mr={2}>Home</Link>
+        </NextLink>
+        <NextLink href="/create-post">
+          <Link mr={2}>Create Post</Link>
         </NextLink>
         {fetching ? (
           <UserNameLoading />
