@@ -19,6 +19,7 @@ export type Query = {
   hello: Scalars['String'];
   posts: Array<Post>;
   post?: Maybe<Post>;
+  cachedPost: CachedPost;
   getUsers?: Maybe<Array<User>>;
   currentUser?: Maybe<User>;
 };
@@ -26,6 +27,11 @@ export type Query = {
 
 export type QueryPostArgs = {
   id: Scalars['Float'];
+};
+
+
+export type QueryCachedPostArgs = {
+  key: Scalars['String'];
 };
 
 export type Post = {
@@ -49,16 +55,35 @@ export type User = {
   email: Scalars['String'];
 };
 
+export type CachedPost = {
+  __typename?: 'CachedPost';
+  title: Scalars['String'];
+  description: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  clearPostCache: Scalars['Boolean'];
+  cachePost: Scalars['String'];
   createPost: Post;
   updatePost?: Maybe<Post>;
   deletePostById: Scalars['Boolean'];
+  deletePosts: Scalars['Boolean'];
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+};
+
+
+export type MutationClearPostCacheArgs = {
+  key: Scalars['String'];
+};
+
+
+export type MutationCachePostArgs = {
+  options: CreatePostInput;
 };
 
 
@@ -74,6 +99,11 @@ export type MutationUpdatePostArgs = {
 
 export type MutationDeletePostByIdArgs = {
   id: Scalars['Float'];
+};
+
+
+export type MutationDeletePostsArgs = {
+  options: DeletePostsInput;
 };
 
 
@@ -107,6 +137,10 @@ export type UpdatePostInput = {
   id: Scalars['Float'];
   title: Scalars['String'];
   description: Scalars['String'];
+};
+
+export type DeletePostsInput = {
+  ids: Array<Scalars['Float']>;
 };
 
 export type UserResponse = {
@@ -163,6 +197,16 @@ export type UserResponseFragmentFragment = (
   )> }
 );
 
+export type CachePostMutationVariables = Exact<{
+  options: CreatePostInput;
+}>;
+
+
+export type CachePostMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'cachePost'>
+);
+
 export type ChangePasswordMutationVariables = Exact<{
   options: ChangePasswordInput;
 }>;
@@ -174,6 +218,16 @@ export type ChangePasswordMutation = (
     { __typename?: 'UserResponse' }
     & UserResponseFragmentFragment
   ) }
+);
+
+export type ClearPostCacheMutationVariables = Exact<{
+  key: Scalars['String'];
+}>;
+
+
+export type ClearPostCacheMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'clearPostCache'>
 );
 
 export type CreatePostMutationVariables = Exact<{
@@ -233,6 +287,19 @@ export type RegisterMutation = (
   ) }
 );
 
+export type CachedPostQueryVariables = Exact<{
+  key: Scalars['String'];
+}>;
+
+
+export type CachedPostQuery = (
+  { __typename?: 'Query' }
+  & { cachedPost: (
+    { __typename?: 'CachedPost' }
+    & Pick<CachedPost, 'title' | 'description'>
+  ) }
+);
+
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -288,6 +355,15 @@ export const UserResponseFragmentFragmentDoc = gql`
 }
     ${UserErrorFragmentDoc}
 ${UserDetailsFragmentDoc}`;
+export const CachePostDocument = gql`
+    mutation CachePost($options: CreatePostInput!) {
+  cachePost(options: $options)
+}
+    `;
+
+export function useCachePostMutation() {
+  return Urql.useMutation<CachePostMutation, CachePostMutationVariables>(CachePostDocument);
+};
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($options: ChangePasswordInput!) {
   changePassword(options: $options) {
@@ -298,6 +374,15 @@ export const ChangePasswordDocument = gql`
 
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
+export const ClearPostCacheDocument = gql`
+    mutation ClearPostCache($key: String!) {
+  clearPostCache(key: $key)
+}
+    `;
+
+export function useClearPostCacheMutation() {
+  return Urql.useMutation<ClearPostCacheMutation, ClearPostCacheMutationVariables>(ClearPostCacheDocument);
 };
 export const CreatePostDocument = gql`
     mutation CreatePost($options: CreatePostInput!) {
@@ -349,6 +434,18 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const CachedPostDocument = gql`
+    query CachedPost($key: String!) {
+  cachedPost(key: $key) {
+    title
+    description
+  }
+}
+    `;
+
+export function useCachedPostQuery(options: Omit<Urql.UseQueryArgs<CachedPostQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<CachedPostQuery>({ query: CachedPostDocument, ...options });
 };
 export const CurrentUserDocument = gql`
     query CurrentUser {
