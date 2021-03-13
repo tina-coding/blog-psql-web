@@ -31,10 +31,13 @@ export type QueryPostArgs = {
 export type Post = {
   __typename?: 'Post';
   id: Scalars['Int'];
+  authorId: Scalars['Float'];
+  author: User;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   title: Scalars['String'];
   description: Scalars['String'];
+  claps: Scalars['Float'];
 };
 
 export type User = {
@@ -140,6 +143,11 @@ export type LoginInput = {
   password: Scalars['String'];
 };
 
+export type PostDetailsFragment = (
+  { __typename?: 'Post' }
+  & Pick<Post, 'id' | 'title' | 'createdAt' | 'description' | 'claps' | 'authorId'>
+);
+
 export type UserDetailsFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'username'>
@@ -171,6 +179,19 @@ export type ChangePasswordMutation = (
   & { changePassword: (
     { __typename?: 'UserResponse' }
     & UserResponseFragmentFragment
+  ) }
+);
+
+export type CreatePostMutationVariables = Exact<{
+  options: CreatePostInput;
+}>;
+
+
+export type CreatePostMutation = (
+  { __typename?: 'Mutation' }
+  & { createPost: (
+    { __typename?: 'Post' }
+    & PostDetailsFragment
   ) }
 );
 
@@ -236,10 +257,20 @@ export type PostsQuery = (
   { __typename?: 'Query' }
   & { posts: Array<(
     { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'title' | 'description'>
+    & PostDetailsFragment
   )> }
 );
 
+export const PostDetailsFragmentDoc = gql`
+    fragment PostDetails on Post {
+  id
+  title
+  createdAt
+  description
+  claps
+  authorId
+}
+    `;
 export const UserErrorFragmentDoc = gql`
     fragment UserError on FieldError {
   field
@@ -273,6 +304,17 @@ export const ChangePasswordDocument = gql`
 
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
+};
+export const CreatePostDocument = gql`
+    mutation CreatePost($options: CreatePostInput!) {
+  createPost(options: $options) {
+    ...PostDetails
+  }
+}
+    ${PostDetailsFragmentDoc}`;
+
+export function useCreatePostMutation() {
+  return Urql.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument);
 };
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
@@ -328,13 +370,10 @@ export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<CurrentUserQ
 export const PostsDocument = gql`
     query Posts {
   posts {
-    id
-    createdAt
-    title
-    description
+    ...PostDetails
   }
 }
-    `;
+    ${PostDetailsFragmentDoc}`;
 
 export function usePostsQuery(options: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });
