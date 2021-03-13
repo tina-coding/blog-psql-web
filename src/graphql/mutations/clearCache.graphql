@@ -1,0 +1,3 @@
+mutation ClearPostCache($key: String!) {
+  clearPostCache(key: $key)
+}

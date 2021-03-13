@@ -1,0 +1,3 @@
+mutation CachePost($options: CreatePostInput!) {
+  cachePost(options: $options)
+}
