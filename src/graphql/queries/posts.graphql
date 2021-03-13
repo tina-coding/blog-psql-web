@@ -1,8 +1,5 @@
 query Posts {
   posts {
-    id
-    createdAt
-    title
-    description
+    ...PostDetails
   }
 }
