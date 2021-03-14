@@ -1,9 +1,9 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Heading, Text } from '@chakra-ui/react';
 import React from 'react';
 import { Post as PostType } from '../generated/graphql';
 
 interface IPostProps {
-  post: Omit<PostType, 'updatedAt' | '__typename' | 'author'>;
+  post: Omit<PostType, 'updatedAt' | '__typename' | 'author' | 'description'>;
 }
 
 const Post: React.FC<IPostProps> = ({ post }) => {
@@ -27,11 +27,11 @@ const Post: React.FC<IPostProps> = ({ post }) => {
             {post.claps}
           </Text>
         </Box>
-        <Text fontSize="lg" fontWeight="bold">
+        <Heading fontSize='xl'>
           {post.title}
-        </Text>
+        </Heading>
         <Text fontSize="medium" fontWeight="normal">
-          {post.description}
+          {post.postDescSnippet}
         </Text>
         <Box marginTop={4}>
         <Text fontSize="medium" fontWeight="normal">
