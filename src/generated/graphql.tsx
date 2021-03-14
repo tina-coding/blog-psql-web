@@ -17,11 +17,16 @@ export type Scalars = {
 export type Query = {
   __typename?: 'Query';
   hello: Scalars['String'];
-  posts: Array<Post>;
+  posts: PostPagination;
   post?: Maybe<Post>;
   cachedPost: CachedPost;
   getUsers?: Maybe<Array<User>>;
   currentUser?: Maybe<User>;
+};
+
+
+export type QueryPostsArgs = {
+  options: PostPaginateInput;
 };
 
 
@@ -34,6 +39,12 @@ export type QueryCachedPostArgs = {
   key: Scalars['String'];
 };
 
+export type PostPagination = {
+  __typename?: 'PostPagination';
+  posts: Array<Post>;
+  total: Scalars['Int'];
+};
+
 export type Post = {
   __typename?: 'Post';
   id: Scalars['Int'];
@@ -44,6 +55,7 @@ export type Post = {
   title: Scalars['String'];
   description: Scalars['String'];
   claps: Scalars['Float'];
+  postDescSnippet: Scalars['String'];
 };
 
 export type User = {
@@ -53,6 +65,11 @@ export type User = {
   updatedAt: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
+};
+
+export type PostPaginateInput = {
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
 };
 
 export type CachedPost = {
@@ -173,7 +190,7 @@ export type LoginInput = {
 
 export type PostDetailsFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'title' | 'createdAt' | 'description' | 'claps' | 'authorId'>
+  & Pick<Post, 'id' | 'title' | 'createdAt' | 'postDescSnippet' | 'claps' | 'authorId'>
 );
 
 export type UserDetailsFragment = (
@@ -311,15 +328,21 @@ export type CurrentUserQuery = (
   )> }
 );
 
-export type PostsQueryVariables = Exact<{ [key: string]: never; }>;
+export type PostsQueryVariables = Exact<{
+  options: PostPaginateInput;
+}>;
 
 
 export type PostsQuery = (
   { __typename?: 'Query' }
-  & { posts: Array<(
-    { __typename?: 'Post' }
-    & PostDetailsFragment
-  )> }
+  & { posts: (
+    { __typename?: 'PostPagination' }
+    & Pick<PostPagination, 'total'>
+    & { posts: Array<(
+      { __typename?: 'Post' }
+      & PostDetailsFragment
+    )> }
+  ) }
 );
 
 export const PostDetailsFragmentDoc = gql`
@@ -327,7 +350,7 @@ export const PostDetailsFragmentDoc = gql`
   id
   title
   createdAt
-  description
+  postDescSnippet
   claps
   authorId
 }
@@ -459,9 +482,12 @@ export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<CurrentUserQ
   return Urql.useQuery<CurrentUserQuery>({ query: CurrentUserDocument, ...options });
 };
 export const PostsDocument = gql`
-    query Posts {
-  posts {
-    ...PostDetails
+    query Posts($options: PostPaginateInput!) {
+  posts(options: $options) {
+    posts {
+      ...PostDetails
+    }
+    total
   }
 }
     ${PostDetailsFragmentDoc}`;
