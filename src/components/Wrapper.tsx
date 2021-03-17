@@ -1,19 +1,24 @@
 import { Box } from '@chakra-ui/layout';
 import React from 'react';
 
-interface IWrapperProps {
-  variant?: 'small' | 'regular';
+type VariantType = Record<'small' | 'medium' | 'large', string>;
+const VARIANTS: VariantType = {
+  small: '400px',
+  medium: '800px',
+  large: '1200px'
 }
-
-const Wrapper: React.FC<IWrapperProps> = ({
+export interface IWrapperVariantProps {
+  variant?: keyof VariantType;
+}
+const Wrapper: React.FC<IWrapperVariantProps> = ({
   children,
-  variant = 'regular'
+  variant = 'medium'
 }) => {
   return (
     <Box
       mt={8}
       mx="auto"
-      maxW={variant === 'regular' ? '800px' : '400px'}
+      maxW={VARIANTS[variant]}
       w="100%"
     >
       {children}
