@@ -31,7 +31,7 @@ export type QueryPostsArgs = {
 
 
 export type QueryPostArgs = {
-  id: Scalars['Float'];
+  id: Scalars['Int'];
 };
 
 
@@ -164,7 +164,7 @@ export type CreatePostInput = {
 };
 
 export type UpdatePostInput = {
-  id: Scalars['Float'];
+  id: Scalars['Int'];
   title: Scalars['String'];
   description: Scalars['String'];
 };
@@ -327,6 +327,19 @@ export type RegisterMutation = (
   ) }
 );
 
+export type UpdatePostMutationVariables = Exact<{
+  options: UpdatePostInput;
+}>;
+
+
+export type UpdatePostMutation = (
+  { __typename?: 'Mutation' }
+  & { updatePost?: Maybe<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'description' | 'postDescSnippet' | 'title'>
+  )> }
+);
+
 export type VoteOnPostMutationVariables = Exact<{
   options: VoteInput;
 }>;
@@ -358,6 +371,23 @@ export type CurrentUserQuery = (
   & { currentUser?: Maybe<(
     { __typename?: 'User' }
     & UserDetailsFragment
+  )> }
+);
+
+export type PostQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type PostQuery = (
+  { __typename?: 'Query' }
+  & { post?: Maybe<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'votes' | 'hasVoted'>
+    & { author: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'username'>
+    ) }
   )> }
 );
 
@@ -505,6 +535,20 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const UpdatePostDocument = gql`
+    mutation UpdatePost($options: UpdatePostInput!) {
+  updatePost(options: $options) {
+    id
+    description
+    postDescSnippet
+    title
+  }
+}
+    `;
+
+export function useUpdatePostMutation() {
+  return Urql.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument);
+};
 export const VoteOnPostDocument = gql`
     mutation VoteOnPost($options: VoteInput!) {
   voteOnPost(options: $options)
@@ -554,6 +598,10 @@ export const PostDocument = gql`
   }
 }
     `;
+
+export function usePostQuery(options: Omit<Urql.UseQueryArgs<PostQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<PostQuery>({ query: PostDocument, ...options });
+};
 export const PostsDocument = gql`
     query Posts($options: PostPaginateInput!) {
   posts(options: $options) {

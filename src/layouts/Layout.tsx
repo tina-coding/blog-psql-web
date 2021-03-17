@@ -1,11 +1,11 @@
 import { Navbar, Wrapper } from "../components";
+import { IWrapperVariantProps } from "../components/Wrapper";
 
-
-const Layout: React.FC = ({ children }) => {
+const Layout: React.FC<IWrapperVariantProps> = ({ children, variant = 'medium' }) => {
 	return (
 		<>
 			<Navbar />
-			<Wrapper>
+			<Wrapper variant={variant}>
 				{children}
 			</Wrapper>
 		</>
