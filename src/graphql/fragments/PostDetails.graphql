@@ -1,0 +1,8 @@
+fragment PostDetails on Post {
+  id
+  title
+  createdAt
+  description
+  claps
+  authorId
+}
