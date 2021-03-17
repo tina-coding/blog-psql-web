@@ -1,0 +1,3 @@
+mutation VoteOnPost($options: VoteInput!) {
+  voteOnPost(options: $options)
+}

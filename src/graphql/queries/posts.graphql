@@ -2,6 +2,10 @@ query Posts($options: PostPaginateInput!) {
   posts(options: $options) {
     posts {
       ...PostDetails
+      author {
+        id
+        username
+      }
     }
     total
   }

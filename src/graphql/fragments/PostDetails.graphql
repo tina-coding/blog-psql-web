@@ -3,6 +3,7 @@ fragment PostDetails on Post {
   title
   createdAt
   postDescSnippet
-  claps
+  hasVoted
+  votes
   authorId
 }
