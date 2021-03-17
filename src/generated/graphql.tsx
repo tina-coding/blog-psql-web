@@ -31,7 +31,7 @@ export type QueryPostsArgs = {
 
 
 export type QueryPostArgs = {
-  id: Scalars['Float'];
+  id: Scalars['Int'];
 };
 
 
@@ -50,11 +50,12 @@ export type Post = {
   id: Scalars['Int'];
   authorId: Scalars['Float'];
   author: User;
+  hasVoted?: Maybe<Scalars['Int']>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   title: Scalars['String'];
   description: Scalars['String'];
-  claps: Scalars['Float'];
+  votes: Scalars['Int'];
   postDescSnippet: Scalars['String'];
 };
 
@@ -65,6 +66,7 @@ export type User = {
   updatedAt: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
+  userEmail: Scalars['String'];
 };
 
 export type PostPaginateInput = {
@@ -80,6 +82,7 @@ export type CachedPost = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  voteOnPost: Scalars['Boolean'];
   clearPostCache: Scalars['Boolean'];
   cachePost: Scalars['String'];
   createPost: Post;
@@ -91,6 +94,11 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+};
+
+
+export type MutationVoteOnPostArgs = {
+  options: VoteInput;
 };
 
 
@@ -115,7 +123,7 @@ export type MutationUpdatePostArgs = {
 
 
 export type MutationDeletePostByIdArgs = {
-  id: Scalars['Float'];
+  id: Scalars['Int'];
 };
 
 
@@ -143,6 +151,11 @@ export type MutationLoginArgs = {
   options: LoginInput;
 };
 
+export type VoteInput = {
+  postId: Scalars['Int'];
+  value: Scalars['Int'];
+};
+
 export type CreatePostInput = {
   /** Title for the post */
   title: Scalars['String'];
@@ -151,7 +164,7 @@ export type CreatePostInput = {
 };
 
 export type UpdatePostInput = {
-  id: Scalars['Float'];
+  id: Scalars['Int'];
   title: Scalars['String'];
   description: Scalars['String'];
 };
@@ -190,7 +203,7 @@ export type LoginInput = {
 
 export type PostDetailsFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'title' | 'createdAt' | 'postDescSnippet' | 'claps' | 'authorId'>
+  & Pick<Post, 'id' | 'title' | 'createdAt' | 'postDescSnippet' | 'hasVoted' | 'votes' | 'authorId'>
 );
 
 export type UserDetailsFragment = (
@@ -260,6 +273,16 @@ export type CreatePostMutation = (
   ) }
 );
 
+export type DeletePostMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type DeletePostMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deletePostById'>
+);
+
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
 }>;
@@ -304,6 +327,29 @@ export type RegisterMutation = (
   ) }
 );
 
+export type UpdatePostMutationVariables = Exact<{
+  options: UpdatePostInput;
+}>;
+
+
+export type UpdatePostMutation = (
+  { __typename?: 'Mutation' }
+  & { updatePost?: Maybe<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'description' | 'postDescSnippet' | 'title'>
+  )> }
+);
+
+export type VoteOnPostMutationVariables = Exact<{
+  options: VoteInput;
+}>;
+
+
+export type VoteOnPostMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'voteOnPost'>
+);
+
 export type CachedPostQueryVariables = Exact<{
   key: Scalars['String'];
 }>;
@@ -328,6 +374,23 @@ export type CurrentUserQuery = (
   )> }
 );
 
+export type PostQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type PostQuery = (
+  { __typename?: 'Query' }
+  & { post?: Maybe<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'description' | 'votes' | 'hasVoted'>
+    & { author: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'username'>
+    ) }
+  )> }
+);
+
 export type PostsQueryVariables = Exact<{
   options: PostPaginateInput;
 }>;
@@ -340,6 +403,10 @@ export type PostsQuery = (
     & Pick<PostPagination, 'total'>
     & { posts: Array<(
       { __typename?: 'Post' }
+      & { author: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      ) }
       & PostDetailsFragment
     )> }
   ) }
@@ -351,7 +418,8 @@ export const PostDetailsFragmentDoc = gql`
   title
   createdAt
   postDescSnippet
-  claps
+  hasVoted
+  votes
   authorId
 }
     `;
@@ -418,6 +486,15 @@ export const CreatePostDocument = gql`
 export function useCreatePostMutation() {
   return Urql.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument);
 };
+export const DeletePostDocument = gql`
+    mutation DeletePost($id: Int!) {
+  deletePostById(id: $id)
+}
+    `;
+
+export function useDeletePostMutation() {
+  return Urql.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument);
+};
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
   forgotPassword(email: $email)
@@ -458,6 +535,29 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const UpdatePostDocument = gql`
+    mutation UpdatePost($options: UpdatePostInput!) {
+  updatePost(options: $options) {
+    id
+    description
+    postDescSnippet
+    title
+  }
+}
+    `;
+
+export function useUpdatePostMutation() {
+  return Urql.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument);
+};
+export const VoteOnPostDocument = gql`
+    mutation VoteOnPost($options: VoteInput!) {
+  voteOnPost(options: $options)
+}
+    `;
+
+export function useVoteOnPostMutation() {
+  return Urql.useMutation<VoteOnPostMutation, VoteOnPostMutationVariables>(VoteOnPostDocument);
+};
 export const CachedPostDocument = gql`
     query CachedPost($key: String!) {
   cachedPost(key: $key) {
@@ -481,11 +581,36 @@ export const CurrentUserDocument = gql`
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<CurrentUserQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CurrentUserQuery>({ query: CurrentUserDocument, ...options });
 };
+export const PostDocument = gql`
+    query Post($id: Int!) {
+  post(id: $id) {
+    id
+    createdAt
+    updatedAt
+    title
+    description
+    votes
+    hasVoted
+    author {
+      id
+      username
+    }
+  }
+}
+    `;
+
+export function usePostQuery(options: Omit<Urql.UseQueryArgs<PostQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<PostQuery>({ query: PostDocument, ...options });
+};
 export const PostsDocument = gql`
     query Posts($options: PostPaginateInput!) {
   posts(options: $options) {
     posts {
       ...PostDetails
+      author {
+        id
+        username
+      }
     }
     total
   }

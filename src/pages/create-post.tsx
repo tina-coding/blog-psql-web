@@ -65,7 +65,6 @@ const CreatePost: React.FC = () => {
     description: string;
 }>
 	) => {
-		console.log(' we submitteedddddd');
     const { data, error } = await createPost({ options: values });
     if (error?.message.includes('unauthorized')) {
       // cache existing post data
@@ -77,7 +76,6 @@ const CreatePost: React.FC = () => {
       const hasKey = isEmpty(cachedPostKey);
       if (cachedPostKey !== '') {
         // clear the cache
-				console.log(' we are clearing that cache baby', cachedPostKey);
         const { data, error } = await clearPostCache({ key: cachedPostKey });
         if (data?.clearPostCache) {
           router.push('/');
