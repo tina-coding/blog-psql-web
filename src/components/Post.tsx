@@ -10,6 +10,10 @@ import PostDate from './common/PostDate';
 // Components
 import ClapButton from './Post/ClapButton';
 import DeleteButton from './Post/DeleteButton';
+import EditButton from './Post/EditButton';
+
+
+
 
 type PostAuthorType = Pick<User, 'id' | 'username'>;
 interface IPostProps {
@@ -20,6 +24,7 @@ interface IPostProps {
 }
 
 const Post: React.FC<IPostProps> = ({ post }) => {
+  const createdAt = new Date(+post.createdAt);
 
   const [{ data, fetching }] = useCurrentUserQuery({
     pause: typeof window === 'undefined'
@@ -52,6 +57,7 @@ const Post: React.FC<IPostProps> = ({ post }) => {
               </Text>
               {renderDeleteBtn ? (
                 <>
+                  <EditButton id={post.id} />
                   <DeleteButton id={post.id} />
                 </>
               ) : null}
@@ -65,6 +71,8 @@ const Post: React.FC<IPostProps> = ({ post }) => {
                 />
               ) : null}
             </Flex>
+
+
             <Box marginTop={4}>
               <Text fontSize="medium" fontWeight="normal">
                 Author Component: {post.author.username}
