@@ -9,6 +9,7 @@ import {
 import PostDate from './common/PostDate';
 // Components
 import ClapButton from './Post/ClapButton';
+import DeleteButton from './Post/DeleteButton';
 
 type PostAuthorType = Pick<User, 'id' | 'username'>;
 interface IPostProps {
@@ -24,6 +25,7 @@ const Post: React.FC<IPostProps> = ({ post }) => {
     pause: typeof window === 'undefined'
   });
 
+  const renderDeleteBtn = data && data.currentUser?.id === post.authorId;
   const renderClapBtn = data && data.currentUser?.id !== post.authorId;
   return (
     <Box
@@ -48,6 +50,12 @@ const Post: React.FC<IPostProps> = ({ post }) => {
               <Text flex={1} fontSize="medium" fontWeight="normal">
               {post.postDescSnippet}
               </Text>
+              {renderDeleteBtn ? (
+                <>
+                  <DeleteButton id={post.id} />
+                </>
+              ) : null}
+
               {renderClapBtn ? (
                 <ClapButton
                   votes={post.votes}
