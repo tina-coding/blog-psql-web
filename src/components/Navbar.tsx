@@ -6,7 +6,8 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Skeleton,
+
+  Spinner,
   useToast
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
@@ -52,9 +53,7 @@ const UserName: React.FC<IUserNameProps> = ({ username }) => {
 };
 
 const UserNameLoading: React.FC = () => {
-  return (
-    <Skeleton startColor="purple.500" endColor="orange.500" height="20px" />
-  );
+  return <Spinner />;
 };
 
 const UserNotLoggedIn: React.FC = () => {
@@ -73,15 +72,20 @@ const UserNotLoggedIn: React.FC = () => {
 interface INavbarProps {}
 
 const Navbar: React.FC<INavbarProps> = ({}) => {
-  const [{ data, fetching }] = useCurrentUserQuery();
+  const [{ data, fetching }] = useCurrentUserQuery({
+    pause: typeof window === 'undefined'
+  });
 
   return (
-    <Flex bg="purple.900" color="white" p={6}>
+    <Flex position='sticky' top={0} zIndex={1} bg="purple.900" color="white" p={6}>
       <Box>Navigation</Box>
       <Spacer />
       <Box>
         <NextLink href="/">
           <Link mr={2}>Home</Link>
+        </NextLink>
+        <NextLink href="/create-post">
+          <Link mr={2}>Create Post</Link>
         </NextLink>
         {fetching ? (
           <UserNameLoading />
@@ -89,7 +93,7 @@ const Navbar: React.FC<INavbarProps> = ({}) => {
           <UserName username={data.currentUser.username} />
         ) : (
           <UserNotLoggedIn />
-        )}
+        ) }
       </Box>
     </Flex>
   );

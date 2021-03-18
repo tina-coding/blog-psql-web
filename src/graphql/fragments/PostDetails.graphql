@@ -1,0 +1,9 @@
+fragment PostDetails on Post {
+  id
+  title
+  createdAt
+  postDescSnippet
+  hasVoted
+  votes
+  authorId
+}

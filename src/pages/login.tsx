@@ -31,8 +31,13 @@ const Login: React.FC<IRegisterProps> = ({ }) => {
         if (response.data?.login.errors) {
           setErrors(toFormikError(response.data.login.errors));
         } else if (response.data?.login.user) {
-          // user successfully login
-          router.push("/");
+          const { key } = router.query;
+          if (key) {
+            router.push(`/create-post?key=${key}`);
+          } else {
+            // user successfully login
+            router.push("/");
+          }
         }
       }}
     >
