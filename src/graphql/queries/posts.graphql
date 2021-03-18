@@ -1,5 +1,8 @@
-query Posts {
-  posts {
-    ...PostDetails
+query Posts($options: PostPaginateInput!) {
+  posts(options: $options) {
+    posts {
+      ...PostDetails
+    }
+    total
   }
 }

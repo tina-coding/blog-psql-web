@@ -2,7 +2,7 @@ fragment PostDetails on Post {
   id
   title
   createdAt
-  description
+  postDescSnippet
   claps
   authorId
 }

@@ -1,0 +1,6 @@
+query CachedPost($key: String!) {
+  cachedPost(key: $key) {
+    title
+    description
+  }
+}
