@@ -50,11 +50,12 @@ export type Post = {
   id: Scalars['Int'];
   authorId: Scalars['Float'];
   author: User;
+  hasVoted?: Maybe<Scalars['Int']>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   title: Scalars['String'];
   description: Scalars['String'];
-  claps: Scalars['Float'];
+  votes: Scalars['Int'];
   postDescSnippet: Scalars['String'];
 };
 
@@ -65,6 +66,7 @@ export type User = {
   updatedAt: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
+  userEmail: Scalars['String'];
 };
 
 export type PostPaginateInput = {
@@ -80,6 +82,7 @@ export type CachedPost = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  voteOnPost: Scalars['Boolean'];
   clearPostCache: Scalars['Boolean'];
   cachePost: Scalars['String'];
   createPost: Post;
@@ -91,6 +94,11 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+};
+
+
+export type MutationVoteOnPostArgs = {
+  options: VoteInput;
 };
 
 
@@ -143,6 +151,11 @@ export type MutationLoginArgs = {
   options: LoginInput;
 };
 
+export type VoteInput = {
+  postId: Scalars['Int'];
+  value: Scalars['Int'];
+};
+
 export type CreatePostInput = {
   /** Title for the post */
   title: Scalars['String'];
@@ -190,7 +203,7 @@ export type LoginInput = {
 
 export type PostDetailsFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'title' | 'createdAt' | 'postDescSnippet' | 'claps' | 'authorId'>
+  & Pick<Post, 'id' | 'title' | 'createdAt' | 'postDescSnippet' | 'hasVoted' | 'votes' | 'authorId'>
 );
 
 export type UserDetailsFragment = (
@@ -304,6 +317,16 @@ export type RegisterMutation = (
   ) }
 );
 
+export type VoteOnPostMutationVariables = Exact<{
+  options: VoteInput;
+}>;
+
+
+export type VoteOnPostMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'voteOnPost'>
+);
+
 export type CachedPostQueryVariables = Exact<{
   key: Scalars['String'];
 }>;
@@ -340,6 +363,10 @@ export type PostsQuery = (
     & Pick<PostPagination, 'total'>
     & { posts: Array<(
       { __typename?: 'Post' }
+      & { author: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      ) }
       & PostDetailsFragment
     )> }
   ) }
@@ -351,7 +378,8 @@ export const PostDetailsFragmentDoc = gql`
   title
   createdAt
   postDescSnippet
-  claps
+  hasVoted
+  votes
   authorId
 }
     `;
@@ -458,6 +486,15 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const VoteOnPostDocument = gql`
+    mutation VoteOnPost($options: VoteInput!) {
+  voteOnPost(options: $options)
+}
+    `;
+
+export function useVoteOnPostMutation() {
+  return Urql.useMutation<VoteOnPostMutation, VoteOnPostMutationVariables>(VoteOnPostDocument);
+};
 export const CachedPostDocument = gql`
     query CachedPost($key: String!) {
   cachedPost(key: $key) {
@@ -481,11 +518,32 @@ export const CurrentUserDocument = gql`
 export function useCurrentUserQuery(options: Omit<Urql.UseQueryArgs<CurrentUserQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CurrentUserQuery>({ query: CurrentUserDocument, ...options });
 };
+export const PostDocument = gql`
+    query Post($id: Int!) {
+  post(id: $id) {
+    id
+    createdAt
+    updatedAt
+    title
+    description
+    votes
+    hasVoted
+    author {
+      id
+      username
+    }
+  }
+}
+    `;
 export const PostsDocument = gql`
     query Posts($options: PostPaginateInput!) {
   posts(options: $options) {
     posts {
       ...PostDetails
+      author {
+        id
+        username
+      }
     }
     total
   }
